@@ -1,0 +1,5 @@
+<resources>
+
+    <string name="server_url">http://www.sendtopush.com/rest_api/cnc/gcm</string>
+
+</resources>
