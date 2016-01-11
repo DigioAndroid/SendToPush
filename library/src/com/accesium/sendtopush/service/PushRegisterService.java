@@ -46,9 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import retrofit.RestAdapter;
-import retrofit.client.OkClient;
-import retrofit.converter.GsonConverter;
+import retrofit.Call;
+import retrofit.GsonConverterFactory;
+import retrofit.Retrofit;
 import retrofit.http.GET;
 import retrofit.http.Query;
 
@@ -104,18 +104,29 @@ public class PushRegisterService extends IntentService {
 					final String enabled = "enabled";
 					final String environment = intent.getStringExtra(Constants.TASK_ENVIRONMENT);
 
-					ServerResult result = getService().reqister(apiKey,company,	appname, Constants.TASK_REGISTER, token,
+					retrofit.Response<ServerResult> result = getService().reqister(apiKey,company,	appname, Constants.TASK_REGISTER, token,
 							appUsername, appversion, getUniqueID(this),devicename, devicemodel, deviceversion,
-							enabled, enabled, enabled, environment, tags);
+							enabled, enabled, enabled, environment, tags).execute();
 
-					requestResult = new ServerRequest(200, result);
+					if (result.isSuccess()) {
+						requestResult = new ServerRequest(200, result.body());
+					}
+					else{
+						requestResult = new ServerRequest(result.code());
+					}
 
 				}
 				break;
 				case UNREGISTER: {
 					final String userPid = intent.getStringExtra(Constants.TASK_PID);
-					ServerResult result = getService().unreqister(apiKey,company, appname, userPid, Constants.TASK_UNREGISTER_ID);
-					requestResult = new ServerRequest(200, result);
+					retrofit.Response<ServerResult> result = getService().unreqister(apiKey,company, appname, userPid, Constants.TASK_UNREGISTER_ID).execute();
+
+					if (result.isSuccess()) {
+						requestResult = new ServerRequest(200, result.body());
+					}
+					else{
+						requestResult = new ServerRequest(result.code());
+					}
 				}
 				break;
 
@@ -180,27 +191,25 @@ public class PushRegisterService extends IntentService {
 				.serializeNulls()
 				.create();
 
-		return new RestAdapter.Builder().setConverter(new GsonConverter(gson)).setEndpoint(serverUrl)
-				.setClient(new OkClient(Utils.getCustomOkHttpClient()))
-				.setLogLevel(RestAdapter.LogLevel.BASIC).build().create(Service.class);
+		return new Retrofit.Builder().baseUrl(serverUrl).addConverterFactory(GsonConverterFactory.create(gson))
+				.client(Utils.getCustomOkHttpClient()).build().create(Service.class);
 	}
 
 	interface Service {
-		@GET("/gcm")
-		ServerResult reqister(@Query(Constants.TASK_APIKEY) String apiKey, @Query(Constants.TASK_COMPANY) String company,
-							  @Query(Constants.TASK_APPNAME) String appName,
-							  @Query(Constants.TASK) String task, @Query(Constants.TASK_DEVICE_TOKEN) String token,
-							  @Query(Constants.TASK_APP_USERNAME) String user, @Query(Constants.TASK_APP_VERSION) String version,
-							  @Query(Constants.TASK_DEVICE_UID) String uid, @Query(Constants.TASK_DEVICE_NAME) String name,
-							  @Query(Constants.TASK_DEVICE_MODEL) String model, @Query(Constants.TASK_DEVICE_VERSION) String devideVersion,
-							  @Query(Constants.TASK_PUSH_BADGE) String badge, @Query(Constants.TASK_PUSH_ALERT) String alert,
-							  @Query(Constants.TASK_PUSH_SOUND) String sound, @Query(Constants.TASK_ENVIRONMENT) String environment,
-							  @Query(Constants.TASK_TAGS) List<String> tags);
+		@GET("/gcm") Call<ServerResult> reqister(@Query(Constants.TASK_APIKEY) String apiKey, @Query(Constants.TASK_COMPANY) String company,
+												 @Query(Constants.TASK_APPNAME) String appName,
+												 @Query(Constants.TASK) String task, @Query(Constants.TASK_DEVICE_TOKEN) String token,
+												 @Query(Constants.TASK_APP_USERNAME) String user, @Query(Constants.TASK_APP_VERSION) String version,
+												 @Query(Constants.TASK_DEVICE_UID) String uid, @Query(Constants.TASK_DEVICE_NAME) String name,
+												 @Query(Constants.TASK_DEVICE_MODEL) String model, @Query(Constants.TASK_DEVICE_VERSION) String devideVersion,
+												 @Query(Constants.TASK_PUSH_BADGE) String badge, @Query(Constants.TASK_PUSH_ALERT) String alert,
+												 @Query(Constants.TASK_PUSH_SOUND) String sound, @Query(Constants.TASK_ENVIRONMENT) String environment,
+												 @Query(Constants.TASK_TAGS) List<String> tags);
 
 		@GET("/gcm")
-		ServerResult unreqister(@Query(Constants.TASK_APIKEY) String apiKey, @Query(Constants.TASK_COMPANY) String company,
-								@Query(Constants.TASK_APPNAME) String appName, @Query(Constants.TASK_PID) String pid,
-								@Query(Constants.TASK) String task);
+		Call<ServerResult> unreqister(@Query(Constants.TASK_APIKEY) String apiKey, @Query(Constants.TASK_COMPANY) String company,
+									  @Query(Constants.TASK_APPNAME) String appName, @Query(Constants.TASK_PID) String pid,
+									  @Query(Constants.TASK) String task);
 	}
 
 
