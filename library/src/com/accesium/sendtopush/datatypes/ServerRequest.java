@@ -24,6 +24,11 @@ public class ServerRequest {
 		this.serverResult = serverResult;
 	}
 
+	public ServerRequest(int code) {
+		super();
+		this.code = code;
+	}
+
 	public ServerRequest(int code, String result) {
 		super();
 		this.code = code;
