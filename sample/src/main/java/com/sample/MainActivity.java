@@ -17,10 +17,10 @@ public class MainActivity extends AppCompatActivity {
     Button mUnregister;
 
     //Push
-    public final static String APIKEY = "api_key";
+    public final static String APIKEY = "a075e8677bfb9e4f58e1261da4cddfaf841627f9";
     public final static String COMPANY = "digio";
-    public final static String APPNAME = "app_name";
-    public final static String GCM_SENDER_ID = "sender_Id";
+    public final static String APPNAME = "testpush";
+    public final static String GCM_SENDER_ID = "583758746761";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -1,6 +1,9 @@
 package com.accesium.sendtopush.datatypes;
 
+import java.io.IOException;
 import java.util.Map;
+
+import rx.Observable;
 
 /**
  * Represents the JSON returned from our push server in a task
@@ -24,7 +27,7 @@ public class ServerResult {
 		this.data = data;
 	}
 
-	public boolean isStatus() {
+	public boolean isSuccess() {
 		return status;
 	}
 
@@ -54,6 +57,14 @@ public class ServerResult {
 
 	public void setData(Map<String, String> data) {
 		this.data = data;
+	}
+
+	public Observable<ServerResult> filterErrors(){
+		if(status){
+			return Observable.just(this);
+		} else {
+			return Observable.error(new IOException());
+		}
 	}
 
 }
