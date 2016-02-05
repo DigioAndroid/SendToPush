@@ -9,9 +9,11 @@ import android.widget.Toast;
 
 import com.accesium.sendtopush.SendToPushManager;
 import com.accesium.sendtopush.datatypes.Environment;
+import com.accesium.sendtopush.datatypes.PushError;
 import com.accesium.sendtopush.datatypes.PushStateType;
+import com.accesium.sendtopush.listeners.PushResponseListener;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements PushResponseListener {
 
     Button mRegister;
     Button mUnregister;
@@ -55,13 +57,22 @@ public class MainActivity extends AppCompatActivity {
     public void doRegistration() {
         SendToPushManager.getInstance().configure(this, PushStateType.SYSTEM, PushStateType.SYSTEM, true, null, "ic_notification_name");
         SendToPushManager.getInstance().enableDebug(BuildConfig.DEBUG);
-        SendToPushManager.getInstance().register(this, "sampleUser", null);
+        SendToPushManager.getInstance().register(this, "sampleUser", this);
 
     }
 
     public void unregister() {
-        SendToPushManager.getInstance().unregister(this, null);
+        SendToPushManager.getInstance().unregister(this, this);
     }
 
 
+    @Override
+    public void onSuccess() {
+        Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onError(PushError error) {
+        Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+    }
 }

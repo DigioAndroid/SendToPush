@@ -23,7 +23,9 @@ public class GcmRegistrationService {
             try {
                 if (!subscriber.isUnsubscribed()) {
                     String token = gcm.register(gcmSenderId);
+
                     subscriber.onNext(token);
+
                     subscriber.onCompleted();
                 }
             } catch (IOException e) {

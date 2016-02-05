@@ -1,23 +1,16 @@
 package com.accesium.sendtopush;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Parcelable;
-import android.support.v4.content.LocalBroadcastManager;
 
 import com.accesium.sendtopush.datatypes.Environment;
 import com.accesium.sendtopush.datatypes.Preferences;
 import com.accesium.sendtopush.datatypes.PushError;
 import com.accesium.sendtopush.datatypes.PushError.Type;
 import com.accesium.sendtopush.datatypes.PushStateType;
-import com.accesium.sendtopush.datatypes.ServerTask;
+import com.accesium.sendtopush.datatypes.ServerResult;
 import com.accesium.sendtopush.listeners.PushResponseListener;
 import com.accesium.sendtopush.service.GcmRegistrationService;
-import com.accesium.sendtopush.service.PushRegisterService;
 import com.accesium.sendtopush.service.ServerRegistrationService;
 import com.accesium.sendtopush.tools.Log;
 import com.accesium.sendtopush.util.Constants;
@@ -28,6 +21,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
@@ -219,95 +214,92 @@ public class SendToPushManager {
     }
 
     public void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister) {
+        register(context, appUsername, listener, tags, forceRegister, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)));
+    }
+
+    protected void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService) {
+        Preferences prefs = new Preferences(context);
+        registerRx(context, appUsername, listener, tags, forceRegister, gcmService, apiService, prefs)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        serverResult -> {
+                            //Si el proceso de registro termina con éxito guardamos el token para no volver a regisrarlo otra vez
+                            prefs.setGcmToken(prefs.getTempToken());
+                            prefs.setUserPid(serverResult.getData().get(Constants.TASK_PID));
+                            notifyListenerSuccess();
+                        },
+                        error -> {
+                            notifyListenerError(Type.CONNECTION_ERROR, error.getMessage());
+                            Log.d("Register error: " + error.getMessage());
+                        }
+                );
+    }
+
+    public Observable<ServerResult> registerRx(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
         this.listener = listener;
         this.appUsername = appUsername;
         this.tags = tags;
         this.forceRegister = forceRegister;
 
-
-        Preferences prefs = new Preferences(context);
-
         // Registro contra Gcm
-        new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)).register(gcmSenderId)
+        return gcmService.register(gcmSenderId)
                 .subscribeOn(Schedulers.io())
-                .doOnError(error -> notifyListenerError(Type.GET_PUSH_TOKEN_ERROR, error.getMessage()))
                 .filter(token -> token != null)
+                .switchIfEmpty(Observable.error(new IllegalArgumentException("Invalid response from GCM")))
                 .doOnNext(token -> prefs.setTempToken(token))
                 .filter(token -> forceRegister || !token.equalsIgnoreCase(prefs.getGcmToken()))
-                //Registro contra el servidor de SendToPush
-                .flatMap(token -> new ServerRegistrationService(context.getString(R.string.server_url_base)).registerInServer(apiKey, company, appname, token, appUsername,
-                        Utils.getApplicationVersion(context), Utils.getUniqueID(context), environment, tags))
-                .flatMap(serverResult -> serverResult.filterErrors())
-                .doOnError(error -> notifyListenerError(Type.SERVER_ERROR, error.getMessage()))
+                .flatMap(token -> apiService.registerInServer(apiKey, company, appname, token, appUsername, Utils.getApplicationVersion(context), Utils.getUniqueID(context), environment, tags))
+                .switchIfEmpty(Observable.just(new ServerResult(true)))
                 .filter(serverResult -> serverResult != null)
+                .switchIfEmpty(Observable.error(new IOException("Invalid response from server")))
+                .flatMap(serverResult -> serverResult.filterErrors());
+    }
+
+    public Observable<ServerResult> registerRx(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister) {
+        Preferences prefs = new Preferences(context);
+        return registerRx(context, appUsername, listener, tags, forceRegister, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
+    }
+
+    public void unregister(Context context, PushResponseListener listener) {
+        Preferences prefs = new Preferences(context);
+
+        unregisterRx(context, listener, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         serverResult -> {
-                            //Si el proceso de registro termina con éxito guardamos el token para no volver a registrarlo otra vez
-                            prefs.setGcmToken(prefs.getTempToken());
+                            prefs.clearUserPid();
                             notifyListenerSuccess();
-                        });
+                        },
+                        error -> {
+                            notifyListenerError(Type.CONNECTION_ERROR, error.getMessage());
+                            Log.d("Unregister error: " + error.getMessage());
+                        }
+                );
     }
 
-    private void notifyListenerSuccess(){
+    public Observable<ServerResult> unregisterRx(Context context, PushResponseListener listener, GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
+        return gcmService.unregister()
+                .subscribeOn(Schedulers.io())
+                .filter(success -> success)
+                .switchIfEmpty(Observable.error(new IllegalArgumentException("Invalid response from GCM")))
+                .doOnNext(success -> prefs.clearGcmToken())
+                .flatMap(success -> Observable.just(prefs.getUserPid()))
+                .filter(userPid -> userPid != null)
+                .flatMap(userPid -> apiService.unregisterInServer(apiKey, company, appname, userPid))
+                .filter(serverResult -> serverResult != null)
+                .defaultIfEmpty(new ServerResult(true));
+    }
+
+
+    private void notifyListenerSuccess() {
         if (listener != null) {
             listener.onSuccess();
         }
     }
-    private void notifyListenerError(Type errorType, String errorMessage){
+
+    private void notifyListenerError(Type errorType, String errorMessage) {
         if (listener != null) {
             listener.onError(new PushError(errorMessage, errorType));
-        }
-    }
-
-
-
-    /**
-     * Unregister from the GCM server and our push server
-     *
-     * @param context  The application context
-     * @param listener The callback for the status of the process.
-     */
-    public void unregister(Context context, PushResponseListener listener) {
-
-        // Unregister from GCM
-        try {
-            GoogleCloudMessaging.getInstance(context).unregister();
-        } catch (IOException ex) {
-            Log.d("Unregister error: " + ex.getMessage());
-        }
-
-        // unregistration done, new messages from the authorized sender will
-        // be rejected
-        Log.d("unregistered");
-        // Notify
-        if (listener != null) {
-            listener.onSuccess();
-        }
-
-        // Delete the token from preferences
-        SharedPreferences prefs = context.getSharedPreferences(Constants.PREF_PUSH_FILE, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(Constants.PREF_TOKEN_KEY);
-        editor.commit();
-
-        // Get the user pid returned by the server in the registration process
-        final String userPid = prefs.getString(Constants.TASK_PID, null);
-        if (userPid != null) {
-            // Unregister from push server
-            Intent serviceIntent = new Intent(context, PushRegisterService.class);
-            serviceIntent.putExtra(Constants.SERVICE_TASK_KEY, (Parcelable) ServerTask.UNREGISTER);
-            serviceIntent.putExtra(Constants.TASK_APIKEY, apiKey);
-            serviceIntent.putExtra(Constants.TASK_COMPANY, company);
-            serviceIntent.putExtra(Constants.TASK_APPNAME, appname);
-            serviceIntent.putExtra(Constants.TASK_PID, userPid);
-            context.startService(serviceIntent);
-            // Register for the service response
-            LocalBroadcastManager.getInstance(context).registerReceiver(mServiceReceiver, new IntentFilter(Constants.SERVICE_RESULT_PUSH_REQUEST));
-        } else {
-            if (listener != null) {
-                PushError error = new PushError("No pid found", Type.INCORRECT_PARAM);
-                listener.onError(error);
-            }
         }
     }
 
@@ -362,22 +354,4 @@ public class SendToPushManager {
         editor.remove(Constants.PREF_VIBRATION);
         editor.commit();
     }
-
-    private BroadcastReceiver mServiceReceiver = new BroadcastReceiver() {
-        public void onReceive(Context context, Intent intent) {
-            if (listener != null) {
-                final boolean success = intent.getBooleanExtra(Constants.PUSH_REQUEST_SUCCESS, false);
-                if (success) {
-                    listener.onSuccess();
-                } else {
-                    final PushError error = intent.getParcelableExtra(Constants.PUSH_REQUEST_ERROR);
-                    listener.onError(error);
-                }
-            }
-            // Unregister
-            LocalBroadcastManager.getInstance(context).unregisterReceiver(mServiceReceiver);
-        }
-
-        ;
-    };
 }

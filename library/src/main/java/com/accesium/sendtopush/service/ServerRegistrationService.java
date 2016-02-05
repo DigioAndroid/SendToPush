@@ -1,19 +1,15 @@
 package com.accesium.sendtopush.service;
 
-import android.content.Context;
-import android.os.Build;
-import android.provider.Settings;
-
 import com.accesium.sendtopush.datatypes.Environment;
 import com.accesium.sendtopush.datatypes.ServerResult;
 import com.accesium.sendtopush.util.Constants;
-import com.accesium.sendtopush.util.Utils;
 
 import java.util.List;
 
 import retrofit.http.GET;
 import retrofit.http.Query;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Fran Gilberte on 20/01/2016.
@@ -37,11 +33,13 @@ public class ServerRegistrationService extends BaseService {
     }
 
     public Observable<ServerResult> unregisterInServer(String apikey, String company, String appName, String userPid) {
-        return mRunService.unregister(apikey, company, appName, userPid, Constants.TASK_UNREGISTER_ID);
+        return mRunService.unregister(apikey, company, appName, userPid, Constants.TASK_UNREGISTER_ID)
+                .subscribeOn(Schedulers.io())
+                .onErrorReturn(throwable -> new ServerResult(true));
     }
 
 
-    interface Service {
+    public interface Service {
         @GET("gcm")
         Observable<ServerResult> register(
                 @Query(Constants.TASK_APIKEY) String apiKey,
