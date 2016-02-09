@@ -35,7 +35,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Recibimos un token nulo o un stream vacío
         when(gcmService.register(anyString())).thenReturn(Observable.just(null));
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -55,7 +55,7 @@ public class RegisterTest extends SendToPushManagerTest{
         // GCM falla al obtener el token
         when(gcmService.register(anyString())).thenReturn(Observable.error(new IOException()));
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -74,7 +74,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Ya estamos registrados para este token
         when(prefs.getGcmToken()).thenReturn(token);
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -96,7 +96,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Servidor devuelve success
         when(apiService.registerInServer(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyObject(), anyList())).thenReturn(Observable.just(success));
         //registro con flag forceRegister activado
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, true, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, true, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -115,7 +115,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Servidor devuelve success
         when(apiService.registerInServer(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyObject(), anyList())).thenReturn(Observable.just(success));
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -135,7 +135,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Servidor devuelve Unsuccess
         when(apiService.registerInServer(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyObject(), anyList())).thenReturn(Observable.just(success));
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -155,7 +155,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Recibimos una respuesta del servidor nula o un stream vacío
         when(apiService.registerInServer(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyObject(), anyList())).thenReturn(Observable.just(null));
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, apiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -175,7 +175,7 @@ public class RegisterTest extends SendToPushManagerTest{
         //Se llama al servidor con una base url no válida
         ServerRegistrationService realApiService = new ServerRegistrationService("http://www.sendtopush.com/rest_api/fake/url");
 
-        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, null, false, gcmService, realApiService, prefs)
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, realApiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();

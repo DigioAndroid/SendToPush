@@ -1,18 +1,12 @@
 package com.accesium.sendtopush;
 
 import com.accesium.sendtopush.datatypes.ServerResult;
-import com.accesium.sendtopush.service.BaseService;
 import com.accesium.sendtopush.service.ServerRegistrationService;
-import com.accesium.sendtopush.util.Constants;
 
 import org.junit.Test;
-import org.mockito.Mock;
-import org.robolectric.RuntimeEnvironment;
 
 import java.io.IOException;
-import java.util.List;
 
-import retrofit.http.Query;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 
@@ -34,7 +28,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //Recibimos un stream vacío.
         when(gcmService.unregister()).thenReturn(Observable.empty());
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -51,7 +45,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //Llamada al proceso de desregitro devuelve false.
         when(gcmService.unregister()).thenReturn(Observable.just(false));
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -68,7 +62,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         // GCM falla al desregistrar
         when(gcmService.unregister()).thenReturn(Observable.error(new IOException()));
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -88,7 +82,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //No esbamos registrados
         when(prefs.getUserPid()).thenReturn(null);
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -112,7 +106,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //Estamos registrados previamente.
         when(prefs.getUserPid()).thenReturn("userPid");
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -134,7 +128,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //Estamos registrados previamente.
         when(prefs.getUserPid()).thenReturn("userPid");
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -156,7 +150,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //Estamos registrados previamente.
         when(prefs.getUserPid()).thenReturn("userPid");
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, apiService, prefs)
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();
@@ -181,7 +175,7 @@ public class UnregisterTest extends SendToPushManagerTest {
         //Estamos registrados previamente.
         when(prefs.getUserPid()).thenReturn("userPid");
 
-        mPushManager.unregisterRx(RuntimeEnvironment.application, null, gcmService, realApiService, prefs)
+        mPushManager.unregisterRx(gcmService, realApiService, prefs)
                 .subscribe(subscriber);
 
         subscriber.awaitTerminalEvent();

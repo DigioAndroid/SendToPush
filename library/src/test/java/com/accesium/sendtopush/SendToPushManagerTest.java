@@ -6,11 +6,14 @@ import com.accesium.sendtopush.service.GcmRegistrationService;
 import com.accesium.sendtopush.service.ServerRegistrationService;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
+
+import static junit.framework.Assert.assertTrue;
 
 /**
  * Created by Fran Gilberte on 04/02/2016.
@@ -33,6 +36,11 @@ public class SendToPushManagerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         mPushManager = SendToPushManager.init(APIKEY, COMPANY, APPNAME, GCM_SENDER_ID, Environment.SANDBOX);
+    }
+
+    @Test
+    public void dummyTest(){
+        assertTrue(true);
     }
 
 }

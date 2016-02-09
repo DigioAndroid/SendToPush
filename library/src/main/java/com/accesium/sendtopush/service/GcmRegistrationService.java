@@ -1,5 +1,6 @@
 package com.accesium.sendtopush.service;
 
+import com.accesium.sendtopush.tools.Log;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
@@ -25,11 +26,13 @@ public class GcmRegistrationService {
                     String token = gcm.register(gcmSenderId);
 
                     subscriber.onNext(token);
+                    Log.d("Gcm register success");
 
                     subscriber.onCompleted();
                 }
             } catch (IOException e) {
                 subscriber.onError(e);
+                Log.d("Gcm register failed");
             }
         }).subscribeOn(Schedulers.io());
     }
@@ -40,10 +43,12 @@ public class GcmRegistrationService {
                 if (!subscriber.isUnsubscribed()) {
                     gcm.unregister();
                     subscriber.onNext(true);
+                    Log.d("Gcm unregister success");
                     subscriber.onCompleted();
                 }
             } catch (IOException e) {
                 subscriber.onError(e);
+                Log.d("Gcm unregister failed");
             }
         }).subscribeOn(Schedulers.io());
     }

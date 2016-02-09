@@ -219,7 +219,7 @@ public class SendToPushManager {
 
     protected void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService) {
         Preferences prefs = new Preferences(context);
-        registerRx(context, appUsername, listener, tags, forceRegister, gcmService, apiService, prefs)
+        registerRx(context, appUsername, tags, forceRegister, gcmService, apiService, prefs)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         serverResult -> {
@@ -235,8 +235,7 @@ public class SendToPushManager {
                 );
     }
 
-    public Observable<ServerResult> registerRx(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
-        this.listener = listener;
+    protected Observable<ServerResult> registerRx(Context context, String appUsername, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
         this.appUsername = appUsername;
         this.tags = tags;
         this.forceRegister = forceRegister;
@@ -255,15 +254,15 @@ public class SendToPushManager {
                 .flatMap(serverResult -> serverResult.filterErrors());
     }
 
-    public Observable<ServerResult> registerRx(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister) {
+    public Observable<ServerResult> registerRx(Context context, String appUsername, ArrayList<String> tags, boolean forceRegister) {
         Preferences prefs = new Preferences(context);
-        return registerRx(context, appUsername, listener, tags, forceRegister, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
+        return registerRx(context, appUsername, tags, forceRegister, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
     }
 
     public void unregister(Context context, PushResponseListener listener) {
         Preferences prefs = new Preferences(context);
 
-        unregisterRx(context, listener, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs)
+        unregisterRx(new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         serverResult -> {
@@ -277,7 +276,7 @@ public class SendToPushManager {
                 );
     }
 
-    public Observable<ServerResult> unregisterRx(Context context, PushResponseListener listener, GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
+    protected Observable<ServerResult> unregisterRx(GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
         return gcmService.unregister()
                 .subscribeOn(Schedulers.io())
                 .filter(success -> success)
@@ -290,6 +289,11 @@ public class SendToPushManager {
                 .defaultIfEmpty(new ServerResult(true));
     }
 
+
+    public Observable<ServerResult> unregisterRx(Context context, PushResponseListener listener){
+        Preferences prefs = new Preferences(context);
+        return  unregisterRx(new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
+    }
 
     private void notifyListenerSuccess() {
         if (listener != null) {
