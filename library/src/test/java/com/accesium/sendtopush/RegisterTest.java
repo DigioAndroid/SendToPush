@@ -1,5 +1,6 @@
 package com.accesium.sendtopush;
 
+import com.accesium.sendtopush.datatypes.Environment;
 import com.accesium.sendtopush.datatypes.ServerResult;
 import com.accesium.sendtopush.service.ServerRegistrationService;
 
@@ -10,16 +11,19 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.IOException;
+import java.util.List;
 
 import rx.Observable;
-import rx.observers.TestSubscriber;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -30,8 +34,8 @@ import static org.mockito.Mockito.when;
 public class RegisterTest extends SendToPushManagerTest{
 
     @Test
-    public void registerGcmReturnNull(){
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testRegisterEmitsIllegalArgumentExceptionWhenGcmReturnsNull(){
+
         //Recibimos un token nulo o un stream vacío
         when(gcmService.register(anyString())).thenReturn(Observable.just(null));
 
@@ -50,8 +54,8 @@ public class RegisterTest extends SendToPushManagerTest{
     }
 
     @Test
-    public void registerGcmReturnIOException(){
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testRegisterEmitsIOExceptionWhenGcmReturnIOException(){
+
         // GCM falla al obtener el token
         when(gcmService.register(anyString())).thenReturn(Observable.error(new IOException()));
 
@@ -66,9 +70,26 @@ public class RegisterTest extends SendToPushManagerTest{
     }
 
     @Test
-    public void registerInServerWithTokenAlreadyRegistered(){
+    public void testRegisterNotCallServerWhenTokenAlreadyRegistered(){
+
         String token = "token";
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+        // GCM devuelve token
+        when(gcmService.register(anyString())).thenReturn(Observable.just(token));
+        //Ya estamos registrados para este token
+        when(prefs.getGcmToken()).thenReturn(token);
+
+        mPushManager.registerRx(RuntimeEnvironment.application, "user", null, false, gcmService, apiService, prefs)
+                .subscribe(subscriber);
+
+        verify(apiService, never()).registerInServer(anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyString(), any(Environment.class), any(List.class));
+
+    }
+
+    @Test
+    public void testRegisterEmitsSuccessWhenTokenAlreadyRegistered(){
+
+        String token = "token";
         // GCM devuelve token
         when(gcmService.register(anyString())).thenReturn(Observable.just(token));
         //Ya estamos registrados para este token
@@ -85,14 +106,14 @@ public class RegisterTest extends SendToPushManagerTest{
     }
 
     @Test
-    public void registerInServerWithTokenAlreadyRegisteredForceRegister(){
+    public void testRegisterCallsServerWhenTokenAlreadyRegisteredForceRegister(){
+
         String token = "token";
         ServerResult success = new ServerResult(true);
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
-        // GCM devuelve token
+
         when(gcmService.register(anyString())).thenReturn(Observable.just(token));
-        //Ya estamos registrados para este token
         when(prefs.getGcmToken()).thenReturn(token);
+
         //Servidor devuelve success
         when(apiService.registerInServer(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyObject(), anyList())).thenReturn(Observable.just(success));
         //registro con flag forceRegister activado
@@ -104,12 +125,15 @@ public class RegisterTest extends SendToPushManagerTest{
         subscriber.assertTerminalEvent();
         subscriber.assertCompleted();
         subscriber.assertValues(success);
+
+        verify(apiService).registerInServer(anyString(), anyString(), anyString(),
+                anyString(), anyString(), anyString(), anyString(), any(Environment.class), any(List.class));
     }
 
     @Test
-    public void registerGcmReturnTokenServerReturnSuccess(){
+    public void testRegisterEmitsServerResultWhenGcmReturnToken(){
+
         ServerResult success = new ServerResult(true);
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
         // GCM devuelve token
         when(gcmService.register(anyString())).thenReturn(Observable.just("Token"));
         //Servidor devuelve success
@@ -127,9 +151,9 @@ public class RegisterTest extends SendToPushManagerTest{
     }
 
     @Test
-    public void registerGcmReturnTokenServerReturnUnsuccess(){
+    public void testRegisterReturnsIOExceptionWhenServerReturnUnsuccess(){
+
         ServerResult success = new ServerResult(false);
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
         // GCM devuelve token
         when(gcmService.register(anyString())).thenReturn(Observable.just("Token"));
         //Servidor devuelve Unsuccess
@@ -148,8 +172,8 @@ public class RegisterTest extends SendToPushManagerTest{
     }
 
     @Test
-    public void registerGcmReturnTokenServerReturnNull(){
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testRegisterReturnsIOExceptionWhenServerReturnNull(){
+
         // GCM devuelve token
         when(gcmService.register(anyString())).thenReturn(Observable.just("Token"));
         //Recibimos una respuesta del servidor nula o un stream vacío
@@ -168,8 +192,8 @@ public class RegisterTest extends SendToPushManagerTest{
     }
 
     @Test
-    public void registerGcmReturnTokenServerReturnThrowable(){
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testRegisterEmitsErrorWhenServerUrlIsNotValid(){
+
         // GCM devuelve token
         when(gcmService.register(anyString())).thenReturn(Observable.just("Token"));
         //Se llama al servidor con una base url no válida

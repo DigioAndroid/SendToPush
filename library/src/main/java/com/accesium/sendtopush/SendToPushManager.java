@@ -218,6 +218,9 @@ public class SendToPushManager {
     }
 
     protected void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService) {
+
+        setListener(listener);
+
         Preferences prefs = new Preferences(context);
         registerRx(context, appUsername, tags, forceRegister, gcmService, apiService, prefs)
                 .observeOn(AndroidSchedulers.mainThread())

@@ -8,12 +8,13 @@ import org.junit.Test;
 import java.io.IOException;
 
 import rx.Observable;
-import rx.observers.TestSubscriber;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -23,8 +24,7 @@ import static org.mockito.Mockito.when;
 public class UnregisterTest extends SendToPushManagerTest {
 
     @Test
-    public void unregisterGcmReturnEmpty() {
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testUnregisterEmitsIllegalArgumentExceptionWhenGcmReturnsEmpty() {
         //Recibimos un stream vacío.
         when(gcmService.unregister()).thenReturn(Observable.empty());
 
@@ -40,8 +40,7 @@ public class UnregisterTest extends SendToPushManagerTest {
     }
 
     @Test
-    public void unregisterGcmReturnUnsuccess() {
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testUnregisterEmitsIllegalArgumentExceptionWhenGcmReturnsUnsuccess() {
         //Llamada al proceso de desregitro devuelve false.
         when(gcmService.unregister()).thenReturn(Observable.just(false));
 
@@ -57,8 +56,7 @@ public class UnregisterTest extends SendToPushManagerTest {
     }
 
     @Test
-    public void unregisterGcmReturnIOException() {
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testUnregisterEmitsIOExceptionWhenGcmReturnsIOException() {
         // GCM falla al desregistrar
         when(gcmService.unregister()).thenReturn(Observable.error(new IOException()));
 
@@ -73,8 +71,7 @@ public class UnregisterTest extends SendToPushManagerTest {
     }
 
     @Test
-    public void unregisterGcmReturnSuccessButNotPreviouslyRegistered() {
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testUnregisterEmitsSuccessWhenGcmReturnsSuccessButNotPreviouslyRegistered() {
 
         //Llamada al proceso de desregitro devuelve true.
         when(gcmService.unregister()).thenReturn(Observable.just(true));
@@ -93,11 +90,24 @@ public class UnregisterTest extends SendToPushManagerTest {
         subscriber.assertCompleted();
     }
 
+    @Test
+    public void testUnregisterNotCallServerWhenGcmReturnsSuccessButNotPreviouslyRegistered() {
+
+        //Llamada al proceso de desregitro devuelve true.
+        when(gcmService.unregister()).thenReturn(Observable.just(true));
+
+        //No esbamos registrados
+        when(prefs.getUserPid()).thenReturn(null);
+
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
+                .subscribe(subscriber);
+
+        verify(apiService, never()).unregisterInServer(anyString(), anyString(), anyString(), anyString());
+    }
 
     @Test
-    public void unregisterGcmReturnSuccessServerReturnSuccess() {
+      public void testUnregisterEmitsSuccessWhenGcmReturnsSuccess() {
         ServerResult success = new ServerResult(true);
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
 
         //Llamada al proceso de desregitro devuelve true.
         when(gcmService.unregister()).thenReturn(Observable.just(true));
@@ -116,10 +126,28 @@ public class UnregisterTest extends SendToPushManagerTest {
         subscriber.assertCompleted();
     }
 
+
     @Test
-    public void unregisterGcmReturnSuccessServerReturnUnsuccess() {
+    public void testUnregisterCallsServerWhenGcmReturnsSuccess() {
+        ServerResult success = new ServerResult(true);
+
+        //Llamada al proceso de desregitro devuelve true.
+        when(gcmService.unregister()).thenReturn(Observable.just(true));
+        //Servidor devuelve success.
+        when(apiService.unregisterInServer(anyString(), anyString(), anyString(), anyString())).thenReturn(Observable.just(success));
+        //Estamos registrados previamente.
+        when(prefs.getUserPid()).thenReturn("userPid");
+
+        mPushManager.unregisterRx(gcmService, apiService, prefs)
+                .subscribe(subscriber);
+
+        verify(apiService).unregisterInServer(anyString(), anyString(), anyString(), anyString());
+
+    }
+
+    @Test
+    public void testUnregisterEmmitsSuccessWhenServerReturnsUnsuccess() {
         ServerResult success = new ServerResult(false);
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
 
         //Llamada al proceso de desregitro devuelve true.
         when(gcmService.unregister()).thenReturn(Observable.just(true));
@@ -140,8 +168,7 @@ public class UnregisterTest extends SendToPushManagerTest {
     }
 
     @Test
-    public void unregisterGcmReturnSuccessServerReturnNull() {
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testUnregisterEmitsSuccessWhenServerReturnsNull() {
 
         //Llamada al proceso de desregitro devuelve true.
         when(gcmService.unregister()).thenReturn(Observable.just(true));
@@ -162,9 +189,7 @@ public class UnregisterTest extends SendToPushManagerTest {
     }
 
     @Test
-    public void unregisterGcmReturnSuccessServerReturnThrowable() {
-
-        TestSubscriber<ServerResult> subscriber = new TestSubscriber<>();
+    public void testUnregisterEmitsSuccessWhenServerReturnThrowable() {
 
         //Llamada al proceso de desregitro devuelve true.
         when(gcmService.unregister()).thenReturn(Observable.just(true));

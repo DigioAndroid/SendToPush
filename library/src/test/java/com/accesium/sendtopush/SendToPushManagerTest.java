@@ -2,6 +2,7 @@ package com.accesium.sendtopush;
 
 import com.accesium.sendtopush.datatypes.Environment;
 import com.accesium.sendtopush.datatypes.Preferences;
+import com.accesium.sendtopush.datatypes.ServerResult;
 import com.accesium.sendtopush.service.GcmRegistrationService;
 import com.accesium.sendtopush.service.ServerRegistrationService;
 
@@ -12,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
+
+import rx.observers.TestSubscriber;
 
 import static junit.framework.Assert.assertTrue;
 
@@ -32,10 +35,13 @@ public class SendToPushManagerTest {
     @Mock ServerRegistrationService apiService;
     @Mock Preferences prefs;
 
+    TestSubscriber<ServerResult> subscriber;
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         mPushManager = SendToPushManager.init(APIKEY, COMPANY, APPNAME, GCM_SENDER_ID, Environment.SANDBOX);
+        subscriber = new TestSubscriber<>();
     }
 
     @Test
