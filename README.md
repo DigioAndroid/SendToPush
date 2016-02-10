@@ -28,7 +28,7 @@ Grab via Maven:
 <dependency>
   <groupId>com.github</groupId>
   <artifactId>sendtopush</artifactId>
-  <version>1.1</version>
+  <version>1.2</version>
 </dependency>
 ```
 or Gradle:
@@ -37,7 +37,7 @@ repositories {
     mavenCentral()
 }
 
-compile 'com.github:sendtopush:1.1'
+compile 'com.github:sendtopush:1.2'
 ```
 
 ## Usage
