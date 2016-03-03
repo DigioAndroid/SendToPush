@@ -13,6 +13,8 @@ import com.accesium.sendtopush.datatypes.PushError;
 import com.accesium.sendtopush.datatypes.PushStateType;
 import com.accesium.sendtopush.listeners.PushResponseListener;
 
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity implements PushResponseListener {
 
     Button mRegister;
@@ -55,9 +57,16 @@ public class MainActivity extends AppCompatActivity implements PushResponseListe
     }
 
     public void doRegistration() {
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add("tag1");
+        tags.add("tag2");
+        tags.add("tag3");
+        tags.add("tag4");
+        tags.add("tag5");
+
         SendToPushManager.getInstance().configure(this, PushStateType.SYSTEM, PushStateType.SYSTEM, true, null, "ic_notification_name");
         SendToPushManager.getInstance().enableDebug(BuildConfig.DEBUG);
-        SendToPushManager.getInstance().register(this, "sampleUser", this);
+        SendToPushManager.getInstance().register(this, "sampleUser", this, tags);
 
     }
 

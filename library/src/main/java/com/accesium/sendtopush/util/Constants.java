@@ -44,7 +44,7 @@ public class Constants {
 	public static final String TASK_PUSH_BADGE = "pushbadge";
 	public static final String TASK_PUSH_ALERT = "pushalert";
 	public static final String TASK_PUSH_SOUND = "pushsound";
-	public static final String TASK_TAGS = "tags";
+	public static final String TASK_TAGS = "tags[]";
 	public static final String TASK_PID = "pid";
 	public static final String TASK_ENVIRONMENT = "environment";
 	// Intent
