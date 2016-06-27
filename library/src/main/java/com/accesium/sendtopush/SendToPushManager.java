@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.leolin.shortcutbadger.ShortcutBadger;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -360,5 +361,13 @@ public class SendToPushManager {
         editor.remove(Constants.PREF_SOUND);
         editor.remove(Constants.PREF_VIBRATION);
         editor.commit();
+    }
+
+    public static void removeBadge(Context context){
+        ShortcutBadger.removeCount(context);
+    }
+
+    public static void setBadge(Context context, int value){
+        ShortcutBadger.applyCount(context, value);
     }
 }

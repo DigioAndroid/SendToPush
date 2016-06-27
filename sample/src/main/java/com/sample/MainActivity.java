@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements PushResponseListe
         });
 
         SendToPushManager.init(APIKEY, COMPANY, APPNAME, GCM_SENDER_ID, BuildConfig.DEBUG ? Environment.SANDBOX : Environment.PRODUCTION);
-
+        SendToPushManager.setBadge(this, 1);
 
     }
 

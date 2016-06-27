@@ -109,4 +109,12 @@ public class Utils {
         }
         return (version != null) ? version : "0";
     }
+
+    public static int toInteger(String value){
+        try{
+            return Integer.parseInt(value);
+        } catch(Exception ex){
+            return -1;
+        }
+    }
 }
