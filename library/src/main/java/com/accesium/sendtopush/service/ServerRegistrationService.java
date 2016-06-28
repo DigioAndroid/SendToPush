@@ -38,6 +38,12 @@ public class ServerRegistrationService extends BaseService {
                 .onErrorReturn(throwable -> new ServerResult(true));
     }
 
+    public Observable<ServerResult> resetBadge(String apikey, String company, String appName, String userPid) {
+        return mRunService.resetBadge(apikey, company, appName, userPid, "0", Constants.TASK_SET_BADGE)
+                .subscribeOn(Schedulers.io())
+                .onErrorReturn(throwable -> new ServerResult(true));
+    }
+
 
     public interface Service {
         @GET("gcm")
@@ -65,6 +71,15 @@ public class ServerRegistrationService extends BaseService {
                 @Query(Constants.TASK_COMPANY) String company,
                 @Query(Constants.TASK_APPNAME) String appName,
                 @Query(Constants.TASK_PID) String pid,
+                @Query(Constants.TASK) String task);
+
+        @GET("gcm")
+        Observable<ServerResult> resetBadge(
+                @Query(Constants.TASK_APIKEY) String apiKey,
+                @Query(Constants.TASK_COMPANY) String company,
+                @Query(Constants.TASK_APPNAME) String appName,
+                @Query(Constants.TASK_PID) String pid,
+                @Query(Constants.TASK_BADGE) String badge,
                 @Query(Constants.TASK) String task);
     }
 

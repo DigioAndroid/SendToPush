@@ -299,6 +299,28 @@ public class SendToPushManager {
         return  unregisterRx(new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
     }
 
+    private void resetBadge(Context context) {
+        Preferences prefs = new Preferences(context);
+
+        resetBadgeRx(new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        serverResult -> {
+                            Log.d("Reset sucess");
+                            notifyListenerSuccess();
+                        },
+                        error -> {
+                            notifyListenerError(Type.CONNECTION_ERROR, error.getMessage());
+                            Log.d("Reset error: " + error.getMessage());
+                        }
+                );
+    }
+
+    private Observable<ServerResult> resetBadgeRx(ServerRegistrationService apiService, Preferences prefs) {
+        return apiService.resetBadge(apiKey, company, appname, prefs.getUserPid());
+
+    }
+
     private void notifyListenerSuccess() {
         if (listener != null) {
             listener.onSuccess();
@@ -363,7 +385,8 @@ public class SendToPushManager {
         editor.commit();
     }
 
-    public static void removeBadge(Context context){
+    public void removeBadge(Context context){
+        resetBadge(context);
         ShortcutBadger.removeCount(context);
     }
 

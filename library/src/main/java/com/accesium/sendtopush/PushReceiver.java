@@ -44,13 +44,17 @@ public class PushReceiver extends BroadcastReceiver {
 				Constants.GCM_MESSAGE_EXTRA);
 		PushMessage pushMessage = PushMessage.buildFromMessage(message);
 		if (pushMessage != null) {
+			updateBadge(context, pushMessage);
 			pushMessage.showNotification(context.getApplicationContext());
-			int badge = Utils.toInteger(pushMessage.getBadge());
-			if(badge >= 0) {
-				ShortcutBadger.applyCount(context,badge);
-			}
 		} else {
 			Log.d("Error parsing the push message from Google");
+		}
+	}
+
+	public void updateBadge(Context context, PushMessage pushMessage){
+		int badge = Utils.toInteger(pushMessage.getBadge());
+		if(badge >= 0) {
+			ShortcutBadger.applyCount(context,badge);
 		}
 	}
 
