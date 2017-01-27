@@ -47,13 +47,14 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.0.1'
     compile 'io.reactivex:rxjava:1.0.14'
 
+    compile 'me.leolin:ShortcutBadger:1.1.10@aar'
+
     testCompile 'junit:junit:4.12'
     testCompile 'org.assertj:assertj-core:1.7.0'
     testCompile 'com.squareup.okhttp:mockwebserver:2.6.0'
     testCompile "org.robolectric:robolectric:3.0"
     testCompile 'org.robolectric:shadows-httpclient:3.0'
     testCompile 'org.mockito:mockito-core:1.+'
-    compile 'me.leolin:ShortcutBadger:1.1.4@aar'
 
 }
 
