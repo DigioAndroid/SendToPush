@@ -37,7 +37,7 @@ repositories {
     mavenCentral()
 }
 
-compile 'com.github.DigioAndroid:sendtopush:1.3'
+compile 'com.github.DigioAndroid:sendtopush:1.3.1'
 ```
 
 ## Usage
