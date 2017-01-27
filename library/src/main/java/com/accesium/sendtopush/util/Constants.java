@@ -31,6 +31,7 @@ public class Constants {
 	public static final String TASK = "task";
 	public static final String TASK_REGISTER = "register";
 	public static final String TASK_UNREGISTER_ID = "unregisterid";
+	public static final String TASK_SET_BADGE = "setbadge";
 	public static final String TASK_APIKEY = "apikey";
 	public static final String TASK_COMPANY = "company";
 	public static final String TASK_APPNAME = "appname";
@@ -58,4 +59,5 @@ public class Constants {
 	public static final String PREF_AUTOCANCEL = "pref_autocancel";
 	public static final String PREF_NOTIFICATION_TITLE = "pref_notification_title";
 	public static final String PREF_ICON_RESOURCE = "pref_icon_resource";
+	public static final String TASK_BADGE = "badge";
 }

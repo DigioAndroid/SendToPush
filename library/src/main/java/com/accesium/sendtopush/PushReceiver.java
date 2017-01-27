@@ -7,6 +7,9 @@ import android.content.Intent;
 import com.accesium.sendtopush.datatypes.PushMessage;
 import com.accesium.sendtopush.tools.Log;
 import com.accesium.sendtopush.util.Constants;
+import com.accesium.sendtopush.util.Utils;
+
+import me.leolin.shortcutbadger.ShortcutBadger;
 
 /**
  * BroadcastReceiver for receive push messages from Google (registration and
@@ -41,9 +44,17 @@ public class PushReceiver extends BroadcastReceiver {
 				Constants.GCM_MESSAGE_EXTRA);
 		PushMessage pushMessage = PushMessage.buildFromMessage(message);
 		if (pushMessage != null) {
+			updateBadge(context, pushMessage);
 			pushMessage.showNotification(context.getApplicationContext());
 		} else {
 			Log.d("Error parsing the push message from Google");
+		}
+	}
+
+	public void updateBadge(Context context, PushMessage pushMessage){
+		int badge = Utils.toInteger(pushMessage.getBadge());
+		if(badge >= 0) {
+			ShortcutBadger.applyCount(context,badge);
 		}
 	}
 
