@@ -2,26 +2,7 @@
 
 Android Library for SendToPush service (http://www.sendtopush.com/)
 
-## Download (Retrofit 1.9)
-
-Grab via Maven:
-```xml
-<dependency>
-  <groupId>com.github</groupId>
-  <artifactId>sendtopush</artifactId>
-  <version>1.3.8</version>
-</dependency>
-```
-or Gradle:
-```groovy
-repositories {
-    mavenCentral()
-}
-
-compile 'com.github:sendtopush:1.3.8'
-```
-
-## Download (Retrofit 2.0)
+## Integration
 
 Grab via Maven:
 ```xml
