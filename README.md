@@ -25,16 +25,16 @@ compile 'com.github:sendtopush:1.1'
 
 See sample project for details.
 
-####Registration
+#### Registration
 
     SendToPushManager.init(APIKEY, COMPANY, APPNAME, GCM_SENDER_ID, BuildConfig.DEBUG ? Environment.SANDBOX : Environment.PRODUCTION);
     SendToPushManager.getInstance().register(this, "sampleUser", null);
     
-####Unregistration
+#### Unregistration
 
      SendToPushManager.getInstance().unregister(this, null);
      
-####Receive notifications
+#### Receive notifications
 
     public class PushReceiver extends com.accesium.sendtopush.PushReceiver {
    
