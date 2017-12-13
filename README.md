@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
 }
 
-compile 'com.github:sendtopush:0.0.1'
+compile 'com.github:sendtopush:1.3.8'
 ```
 
 ## Download (Retrofit 2.0)
