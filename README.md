@@ -9,7 +9,7 @@ Grab via Maven:
 <dependency>
   <groupId>com.github</groupId>
   <artifactId>sendtopush</artifactId>
-  <version>0.0.1</version>
+  <version>1.3.8</version>
 </dependency>
 ```
 or Gradle:
