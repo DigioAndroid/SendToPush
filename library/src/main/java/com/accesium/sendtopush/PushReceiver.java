@@ -9,7 +9,7 @@ import com.accesium.sendtopush.tools.Log;
 import com.accesium.sendtopush.util.Constants;
 import com.accesium.sendtopush.util.Utils;
 
-import me.leolin.shortcutbadger.ShortcutBadger;
+import shortcutbadger.ShortcutBadger;
 
 /**
  * BroadcastReceiver for receive push messages from Google (registration and

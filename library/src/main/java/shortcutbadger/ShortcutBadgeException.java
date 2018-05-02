@@ -1,4 +1,4 @@
-package me.leolin.shortcutbadger;
+package shortcutbadger;
 
 public class ShortcutBadgeException extends Exception {
     public ShortcutBadgeException(String message) {

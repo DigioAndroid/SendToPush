@@ -1,4 +1,4 @@
-package me.leolin.shortcutbadger.impl;
+package shortcutbadger.impl;
 
 import android.content.ComponentName;
 import android.content.ContentValues;
@@ -8,8 +8,8 @@ import android.net.Uri;
 import java.util.Arrays;
 import java.util.List;
 
-import me.leolin.shortcutbadger.Badger;
-import me.leolin.shortcutbadger.ShortcutBadgeException;
+import shortcutbadger.Badger;
+import shortcutbadger.ShortcutBadgeException;
 
 /**
  * Shortcut Badger support for Nova Launcher.
@@ -30,6 +30,7 @@ public class NovaHomeBadger implements Badger {
         contentValues.put(TAG, componentName.getPackageName() + "/" + componentName.getClassName());
         contentValues.put(COUNT, badgeCount);
         context.getContentResolver().insert(Uri.parse(CONTENT_URI), contentValues);
+
     }
 
     @Override

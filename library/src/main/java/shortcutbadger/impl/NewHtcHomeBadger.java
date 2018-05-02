@@ -1,16 +1,15 @@
-package me.leolin.shortcutbadger.impl;
+package shortcutbadger.impl;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import me.leolin.shortcutbadger.Badger;
-import me.leolin.shortcutbadger.ShortcutBadgeException;
-import me.leolin.shortcutbadger.ShortcutBadger;
-import me.leolin.shortcutbadger.util.BroadcastHelper;
-
 import java.util.Arrays;
 import java.util.List;
+
+import shortcutbadger.Badger;
+import shortcutbadger.ShortcutBadgeException;
+import shortcutbadger.util.BroadcastHelper;
 
 /**
  * @author Leo Lin

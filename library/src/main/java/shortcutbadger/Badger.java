@@ -1,4 +1,4 @@
-package me.leolin.shortcutbadger;
+package shortcutbadger;
 
 import android.content.ComponentName;
 import android.content.Context;

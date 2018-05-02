@@ -1,4 +1,4 @@
-package me.leolin.shortcutbadger.impl;
+package shortcutbadger.impl;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,28 +7,28 @@ import android.content.Intent;
 import java.util.Arrays;
 import java.util.List;
 
-import me.leolin.shortcutbadger.Badger;
-import me.leolin.shortcutbadger.ShortcutBadgeException;
-import me.leolin.shortcutbadger.util.BroadcastHelper;
+import shortcutbadger.Badger;
+import shortcutbadger.ShortcutBadgeException;
+import shortcutbadger.util.BroadcastHelper;
 
 /**
  * @author Gernot Pansy
  */
-public class AdwHomeBadger implements Badger {
+public class ApexHomeBadger implements Badger {
 
-    public static final String INTENT_UPDATE_COUNTER = "org.adw.launcher.counter.SEND";
-    public static final String PACKAGENAME = "PNAME";
-    public static final String CLASSNAME = "CNAME";
-    public static final String COUNT = "COUNT";
+    private static final String INTENT_UPDATE_COUNTER = "com.anddoes.launcher.COUNTER_CHANGED";
+    private static final String PACKAGENAME = "package";
+    private static final String COUNT = "count";
+    private static final String CLASS = "class";
 
     @Override
     public void executeBadge(Context context, ComponentName componentName, int badgeCount) throws ShortcutBadgeException {
 
         Intent intent = new Intent(INTENT_UPDATE_COUNTER);
         intent.putExtra(PACKAGENAME, componentName.getPackageName());
-        intent.putExtra(CLASSNAME, componentName.getClassName());
         intent.putExtra(COUNT, badgeCount);
-        if (BroadcastHelper.canResolveBroadcast(context, intent)) {
+        intent.putExtra(CLASS, componentName.getClassName());
+        if(BroadcastHelper.canResolveBroadcast(context, intent)) {
             context.sendBroadcast(intent);
         } else {
             throw new ShortcutBadgeException("unable to resolve intent: " + intent.toString());
@@ -37,9 +37,6 @@ public class AdwHomeBadger implements Badger {
 
     @Override
     public List<String> getSupportLaunchers() {
-        return Arrays.asList(
-                "org.adw.launcher",
-                "org.adwfreak.launcher"
-        );
+        return Arrays.asList("com.anddoes.launcher");
     }
 }

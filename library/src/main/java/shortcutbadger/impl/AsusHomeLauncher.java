@@ -1,23 +1,20 @@
-package me.leolin.shortcutbadger.impl;
+package shortcutbadger.impl;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import me.leolin.shortcutbadger.Badger;
-import me.leolin.shortcutbadger.ShortcutBadgeException;
-import me.leolin.shortcutbadger.ShortcutBadger;
-import me.leolin.shortcutbadger.util.BroadcastHelper;
-
 import java.util.Arrays;
 import java.util.List;
 
+import shortcutbadger.Badger;
+import shortcutbadger.ShortcutBadgeException;
+import shortcutbadger.util.BroadcastHelper;
+
 /**
- * @author Leo Lin
- * Deprecated, LG devices will use DefaultBadger
+ * @author leolin
  */
-@Deprecated
-public class LGHomeBadger implements Badger {
+public class AsusHomeLauncher implements Badger {
 
     private static final String INTENT_ACTION = "android.intent.action.BADGE_COUNT_UPDATE";
     private static final String INTENT_EXTRA_BADGE_COUNT = "badge_count";
@@ -30,6 +27,7 @@ public class LGHomeBadger implements Badger {
         intent.putExtra(INTENT_EXTRA_BADGE_COUNT, badgeCount);
         intent.putExtra(INTENT_EXTRA_PACKAGENAME, componentName.getPackageName());
         intent.putExtra(INTENT_EXTRA_ACTIVITY_NAME, componentName.getClassName());
+        intent.putExtra("badge_vip_count", 0);
         if(BroadcastHelper.canResolveBroadcast(context, intent)) {
             context.sendBroadcast(intent);
         } else {
@@ -39,9 +37,6 @@ public class LGHomeBadger implements Badger {
 
     @Override
     public List<String> getSupportLaunchers() {
-        return Arrays.asList(
-                "com.lge.launcher",
-                "com.lge.launcher2"
-        );
+        return Arrays.asList("com.asus.launcher");
     }
 }
