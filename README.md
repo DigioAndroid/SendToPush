@@ -2,26 +2,7 @@
 
 Android Library for SendToPush service (http://www.sendtopush.com/)
 
-## Download (Retrofit 1.9)
-
-Grab via Maven:
-```xml
-<dependency>
-  <groupId>com.github</groupId>
-  <artifactId>sendtopush</artifactId>
-  <version>0.0.1</version>
-</dependency>
-```
-or Gradle:
-```groovy
-repositories {
-    mavenCentral()
-}
-
-compile 'com.github:sendtopush:0.0.1'
-```
-
-## Download (Retrofit 2.0)
+## Integration
 
 Grab via Maven:
 ```xml
@@ -44,16 +25,16 @@ compile 'com.github:sendtopush:1.1'
 
 See sample project for details.
 
-####Registration
+#### Registration
 
     SendToPushManager.init(APIKEY, COMPANY, APPNAME, GCM_SENDER_ID, BuildConfig.DEBUG ? Environment.SANDBOX : Environment.PRODUCTION);
     SendToPushManager.getInstance().register(this, "sampleUser", null);
     
-####Unregistration
+#### Unregistration
 
      SendToPushManager.getInstance().unregister(this, null);
      
-####Receive notifications
+#### Receive notifications
 
     public class PushReceiver extends com.accesium.sendtopush.PushReceiver {
    
