@@ -9,7 +9,7 @@ Grab via Maven:
 <dependency>
   <groupId>com.github</groupId>
   <artifactId>sendtopush</artifactId>
-  <version>2.0.1</version>
+  <version>2.0.2</version>
 </dependency>
 ```
 or Gradle:
@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
 }
 
-compile 'com.github.DigioAndroid:sendtopush:2.0.1'
+compile 'com.github.DigioAndroid:sendtopush:2.0.2'
 ```
 
 ## Usage
@@ -55,7 +55,7 @@ Incluir fichero google-services.json en la carpeta app del proyecto, obtenido de
     
 #### Unregistration
 
-     SendToPushManager.getInstance().unregister(this, null);
+     SendToPushManager.getInstance().unregister(this);
      
 #### Receive notifications
 
