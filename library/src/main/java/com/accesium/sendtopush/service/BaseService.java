@@ -1,12 +1,11 @@
 package com.accesium.sendtopush.service;
 
 import com.accesium.sendtopush.util.Utils;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by Fran Gilberte on 20/01/2016.
@@ -19,15 +18,11 @@ import retrofit.RxJavaCallAdapterFactory;
         this.mBaseUrl = baseUrl;
 
         OkHttpClient client = Utils.getCustomOkHttpClient();
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-
-        client.interceptors().add(interceptor);
 
         return new Retrofit.Builder()
                 .baseUrl(mBaseUrl)
                 .client(client)
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }

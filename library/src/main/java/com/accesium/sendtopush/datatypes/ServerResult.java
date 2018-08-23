@@ -3,7 +3,7 @@ package com.accesium.sendtopush.datatypes;
 import java.io.IOException;
 import java.util.Map;
 
-import rx.Observable;
+import io.reactivex.Observable;
 
 /**
  * Represents the JSON returned from our push server in a task

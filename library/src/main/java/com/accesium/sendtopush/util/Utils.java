@@ -7,17 +7,16 @@ import android.os.Build;
 import android.provider.Settings;
 
 import com.accesium.sendtopush.tools.Log;
-import com.squareup.okhttp.OkHttpClient;
 
 import java.security.cert.CertificateException;
-import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class Utils {
 
@@ -61,18 +60,15 @@ public class Utils {
             // Create an ssl socket factory with our all-trusting manager
             final SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
-            OkHttpClient okHttpClient = new OkHttpClient();
-            okHttpClient.setSslSocketFactory(sslSocketFactory);
-            okHttpClient.setReadTimeout(10000, TimeUnit.SECONDS);
-            okHttpClient.setConnectTimeout(10000, TimeUnit.SECONDS);
-            okHttpClient.setHostnameVerifier(new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
+            HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-            return okHttpClient;
+
+            return new OkHttpClient.Builder()
+                    .addInterceptor(interceptor)
+                    .hostnameVerifier(((hostname, session) -> true))
+                    .build();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

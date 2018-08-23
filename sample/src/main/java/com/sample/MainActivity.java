@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements PushResponseListe
     }
 
     public void unregister() {
-        SendToPushManager.getInstance().unregister(this, this);
+        SendToPushManager.getInstance().unregister(this);
     }
 
 

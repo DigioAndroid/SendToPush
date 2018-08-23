@@ -15,16 +15,15 @@ import com.accesium.sendtopush.service.ServerRegistrationService;
 import com.accesium.sendtopush.tools.Log;
 import com.accesium.sendtopush.util.Constants;
 import com.accesium.sendtopush.util.Utils;
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import shortcutbadger.ShortcutBadger;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 /**
  * Class that encapsulate the register and unregister in push server. It handles
@@ -215,15 +214,15 @@ public class SendToPushManager {
     }
 
     public void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister) {
-        register(context, appUsername, listener, tags, forceRegister, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)));
+        register(context, appUsername, listener, tags, forceRegister, new ServerRegistrationService(context.getString(R.string.server_url_base)));
     }
 
-    protected void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService) {
+    protected void register(Context context, String appUsername, PushResponseListener listener, ArrayList<String> tags, boolean forceRegister, ServerRegistrationService apiService) {
 
         setListener(listener);
 
         Preferences prefs = new Preferences(context);
-        registerRx(context, appUsername, tags, forceRegister, gcmService, apiService, prefs)
+        registerRx(context, appUsername, tags, forceRegister, apiService, prefs)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         serverResult -> {
@@ -239,13 +238,13 @@ public class SendToPushManager {
                 );
     }
 
-    protected Observable<ServerResult> registerRx(Context context, String appUsername, ArrayList<String> tags, boolean forceRegister, GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
+    protected Observable<ServerResult> registerRx(Context context, String appUsername, ArrayList<String> tags, boolean forceRegister, ServerRegistrationService apiService, Preferences prefs) {
         this.appUsername = appUsername;
         this.tags = tags;
         this.forceRegister = forceRegister;
 
         // Registro contra Gcm
-        return gcmService.register(gcmSenderId)
+        return GcmRegistrationService.Companion.register(context)
                 .subscribeOn(Schedulers.io())
                 .filter(token -> token != null)
                 .switchIfEmpty(Observable.error(new IllegalArgumentException("Invalid response from GCM")))
@@ -258,15 +257,11 @@ public class SendToPushManager {
                 .flatMap(serverResult -> serverResult.filterErrors());
     }
 
-    public Observable<ServerResult> registerRx(Context context, String appUsername, ArrayList<String> tags, boolean forceRegister) {
-        Preferences prefs = new Preferences(context);
-        return registerRx(context, appUsername, tags, forceRegister, new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
-    }
 
-    public void unregister(Context context, PushResponseListener listener) {
+    public void unregister(Context context) {
         Preferences prefs = new Preferences(context);
 
-        unregisterRx(new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs)
+        unregisterRx(new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         serverResult -> {
@@ -280,8 +275,10 @@ public class SendToPushManager {
                 );
     }
 
-    protected Observable<ServerResult> unregisterRx(GcmRegistrationService gcmService, ServerRegistrationService apiService, Preferences prefs) {
-        return gcmService.unregister()
+    protected Observable<ServerResult> unregisterRx(ServerRegistrationService apiService, Preferences prefs) {
+        GcmRegistrationService.Companion.unregister();
+
+        return Observable.just(true)
                 .subscribeOn(Schedulers.io())
                 .filter(success -> success)
                 .switchIfEmpty(Observable.error(new IllegalArgumentException("Invalid response from GCM")))
@@ -293,11 +290,6 @@ public class SendToPushManager {
                 .defaultIfEmpty(new ServerResult(true));
     }
 
-
-    public Observable<ServerResult> unregisterRx(Context context, PushResponseListener listener){
-        Preferences prefs = new Preferences(context);
-        return  unregisterRx(new GcmRegistrationService(GoogleCloudMessaging.getInstance(context)), new ServerRegistrationService(context.getString(R.string.server_url_base)), prefs);
-    }
 
     private void resetBadge(Context context) {
         Preferences prefs = new Preferences(context);

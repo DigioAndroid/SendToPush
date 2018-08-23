@@ -6,10 +6,10 @@ import com.accesium.sendtopush.util.Constants;
 
 import java.util.List;
 
-import retrofit.http.GET;
-import retrofit.http.Query;
-import rx.Observable;
-import rx.schedulers.Schedulers;
+import io.reactivex.Observable;
+import io.reactivex.schedulers.Schedulers;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
 
 /**
  * Created by Fran Gilberte on 20/01/2016.
