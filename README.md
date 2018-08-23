@@ -39,6 +39,8 @@ build.gradle raiz del proyecto:
 
 Incluir plugin de google play services en build.gradle del modulo app:
 
+Importante: en el Manifest de la app cliente no hay que añadir nada relacionado con FCM, está incluido en la librería. Si el proyecto contiene alguna referencia receivers de GCM hay que eliminarla.
+
 ````
 apply plugin: 'com.google.gms.google-services' //Añadir al final del fichero
 ````
