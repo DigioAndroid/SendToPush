@@ -25,6 +25,26 @@ compile 'com.github.DigioAndroid:sendtopush:1.3.1'
 
 See sample project for details.
 
+### Firebase configuration
+
+build.gradle raiz del proyecto:
+
+```` buildscript {
+  dependencies {
+    // Add this line
+    classpath 'com.google.gms:google-services:4.0.0'
+  }
+}
+````
+
+Incluir plugin de google play services en build.gradle del modulo app:
+
+````
+apply plugin: 'com.google.gms.google-services' //Añadir al final del fichero
+````
+
+Incluir fichero google-services.json en la carpeta app del proyecto, obtenido desde la consola de firebase.
+
 #### Registration
 
     SendToPushManager.init(APIKEY, COMPANY, APPNAME, GCM_SENDER_ID, BuildConfig.DEBUG ? Environment.SANDBOX : Environment.PRODUCTION);
