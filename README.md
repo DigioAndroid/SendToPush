@@ -9,7 +9,7 @@ Grab via Maven:
 <dependency>
   <groupId>com.github</groupId>
   <artifactId>sendtopush</artifactId>
-  <version>1.3</version>
+  <version>2.0.1</version>
 </dependency>
 ```
 or Gradle:
@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
 }
 
-compile 'com.github.DigioAndroid:sendtopush:1.3.1'
+compile 'com.github.DigioAndroid:sendtopush:2.0.1'
 ```
 
 ## Usage
@@ -39,11 +39,12 @@ build.gradle raiz del proyecto:
 
 Incluir plugin de google play services en build.gradle del modulo app:
 
-Importante: en el Manifest de la app cliente no hay que añadir nada relacionado con FCM, está incluido en la librería. Si el proyecto contiene alguna referencia receivers de GCM hay que eliminarla.
-
 ````
 apply plugin: 'com.google.gms.google-services' //Añadir al final del fichero
 ````
+
+**Importante: en el Manifest de la app cliente no hay que añadir nada relacionado con FCM, está incluido en la librería. Si el proyecto contiene alguna referencia en relación a receivers de GCM hay que eliminarla.**
+
 
 Incluir fichero google-services.json en la carpeta app del proyecto, obtenido desde la consola de firebase.
 
