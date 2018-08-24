@@ -48,14 +48,12 @@ apply plugin: 'com.google.gms.google-services' //Añadir al final del fichero
 
 Si se necesita extender la clase PushReceiver para procesar la notificación de forma manual, declarar en el manifest del cliente:
 
-````
- <service
-            android:name="my.package.CustomPushReceiver">
+``` <service android:name="my.package.CustomPushReceiver">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-        ````
+  </service>  
+````
 
 
 Incluir fichero google-services.json en la carpeta app del proyecto, obtenido desde la consola de firebase.
