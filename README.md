@@ -46,6 +46,18 @@ apply plugin: 'com.google.gms.google-services' //Añadir al final del fichero
 **Importante: en el Manifest de la app cliente no hay que añadir nada relacionado con FCM, está incluido en la librería. Si el proyecto contiene alguna referencia en relación a receivers de GCM hay que eliminarla.**
 
 
+Si se necesita extender la clase PushReceiver para procesar la notificación de forma manual, declarar en el manifest del cliente:
+
+````
+ <service
+            android:name="my.package.CustomPushReceiver">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        ````
+
+
 Incluir fichero google-services.json en la carpeta app del proyecto, obtenido desde la consola de firebase.
 
 #### Registration
